@@ -1,0 +1,1 @@
+..\efficient-frontier-calculation.py 00680L.TW,00631L.TW 365 1000000 TaiwanStocks.txt

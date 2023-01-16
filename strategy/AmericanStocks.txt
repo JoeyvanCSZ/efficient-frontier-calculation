@@ -1,0 +1,33 @@
+Tickers: ['QLD', 'SSO', 'DDM', 'UBT']
+Window size: 365
+Total portfolio value: 1000000
+
+========== Maximises Sharpe ==========
+Optimization failed.
+
+========== Minimise Volatility ==========
+Expected annual return: -24.92%
+Annual volatility: 22.82%
+Sharpe Ratio: -1.18
+Weights: [('DDM', '51.25%'), ('UBT', '48.75%')]
+Discrete allocation: {'DDM': 8038, 'UBT': 13864}
+Funds remaining: $9.79
+
+========== Minimise Semivariance ==========
+Expected annual return: -24.20%
+Annual volatility: 18.02%
+Sharpe Ratio: -1.45
+Weights: [('DDM', '54.05%'), ('UBT', '45.95%')]
+Discrete allocation: {'DDM': 8477, 'UBT': 13068}
+Funds remaining: $10.42
+
+========== Semivariance Efficient Return ==========
+Optimization failed.
+
+========== Semivariance Efficient Risk ==========
+Expected annual return: -24.19%
+Annual volatility: 18.03%
+Sharpe Ratio: -1.45
+Weights: [('DDM', '54.06%'), ('UBT', '45.94%')]
+Discrete allocation: {'DDM': 8479, 'UBT': 13064}
+Funds remaining: $23.56

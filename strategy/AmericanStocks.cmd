@@ -1,0 +1,1 @@
+..\efficient-frontier-calculation.py QLD,SSO,DDM,UBT 365 1000000 AmericanStocks.txt

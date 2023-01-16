@@ -1,0 +1,33 @@
+Tickers: ['00680L.TW', '00631L.TW']
+Window size: 365
+Total portfolio value: 1000000
+
+========== Maximises Sharpe ==========
+Optimization failed.
+
+========== Minimise Volatility ==========
+Expected annual return: -33.88%
+Annual volatility: 22.45%
+Sharpe Ratio: -1.60
+Weights: [('00631L.TW', '44.15%'), ('00680L.TW', '55.85%')]
+Discrete allocation: {'00680L.TW': 35216, '00631L.TW': 4371}
+Funds remaining: $3.25
+
+========== Minimise Semivariance ==========
+Expected annual return: -33.69%
+Annual volatility: 17.54%
+Sharpe Ratio: -2.04
+Weights: [('00631L.TW', '45.39%'), ('00680L.TW', '54.61%')]
+Discrete allocation: {'00680L.TW': 34430, '00631L.TW': 4494}
+Funds remaining: $46.21
+
+========== Semivariance Efficient Return ==========
+Optimization failed.
+
+========== Semivariance Efficient Risk ==========
+Expected annual return: -33.49%
+Annual volatility: 17.54%
+Sharpe Ratio: -2.02
+Weights: [('00631L.TW', '46.67%'), ('00680L.TW', '53.33%')]
+Discrete allocation: {'00680L.TW': 33627, '00631L.TW': 4620}
+Funds remaining: $55.79
