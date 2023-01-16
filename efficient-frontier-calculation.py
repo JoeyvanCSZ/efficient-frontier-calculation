@@ -66,10 +66,10 @@ class Program:
 			for key in removeKeys:
 				del clean_weights[key]
 
-			print("Expected annual return: {:.0%}".format(performance[0]), file=self.result_file)
-			print("Annual volatility: {:.0%}".format(performance[1]), file=self.result_file)
+			print("Expected annual return: {:.2%}".format(performance[0]), file=self.result_file)
+			print("Annual volatility: {:.2%}".format(performance[1]), file=self.result_file)
 			print("Sharpe Ratio: {:.2f}".format(performance[2]), file=self.result_file)
-			print("Weights: {}".format([(k,"{:.0%}".format(v)) for k,v in clean_weights.items()]), file=self.result_file)
+			print("Weights: {}".format([(k,"{:.2%}".format(v)) for k,v in clean_weights.items()]), file=self.result_file)
 			print("Discrete allocation:", allocation, file=self.result_file)
 			print("Funds remaining: ${:.2f}".format(leftover), file=self.result_file)
 			return True, performance[0], performance[1], performance[2];
