@@ -6,6 +6,7 @@ import math
 import numpy as np
 import pprint
 import sys
+import cvxpy
 
 from pypfopt import objective_functions
 from datetime import datetime, date, timedelta
@@ -44,15 +45,15 @@ class Program:
 		prices = ohlc["Adj Close"].dropna(how="all")
 		prices = prices.first(days)
 
-		self.mu = expected_returns.mean_historical_return(prices, frequency=self.num_trading_days_per_year)
-		self.S = risk_models.sample_cov(prices, frequency=self.num_trading_days_per_year)
+		self.mean_historical_return = expected_returns.mean_historical_return(prices, frequency=self.num_trading_days_per_year)
+		self.cov_matrix = risk_models.sample_cov(prices, frequency=self.num_trading_days_per_year)
 		self.historical_returns = expected_returns.returns_from_prices(prices)
 		self.latest_prices = get_latest_prices(prices)
 
 	def max_sharpe(self):
 		print("\n========== Maximises Sharpe ==========", file=self.result_file)
 		try:
-			ef = EfficientFrontier(self.mu, self.S)
+			ef = EfficientFrontier(self.mean_historical_return, self.cov_matrix)
 			ef.max_sharpe()
 			clean_weights = ef.clean_weights()
 			performance = ef.portfolio_performance()
@@ -80,7 +81,8 @@ class Program:
 	def min_volatility(self):
 		print("\n========== Minimise Volatility ==========", file=self.result_file)
 		try:
-			ef = EfficientFrontier(self.mu, self.S)
+			ef = EfficientFrontier(self.mean_historical_return, self.cov_matrix)
+			ef.add_objective(objective_functions.L2_reg)
 			ef.min_volatility()
 			clean_weights = ef.clean_weights()
 			performance = ef.portfolio_performance()
@@ -109,7 +111,7 @@ class Program:
 	def min_semivariance(self):
 		print("\n========== Minimise Semivariance ==========", file=self.result_file)
 		try:
-			es = EfficientSemivariance(self.mu, self.historical_returns)
+			es = EfficientSemivariance(self.mean_historical_return, self.historical_returns)
 			es.min_semivariance()
 			clean_weights = es.clean_weights()
 			performance = es.portfolio_performance()
@@ -133,13 +135,16 @@ class Program:
 		except pypfopt.exceptions.OptimizationError as e:
 			print("Optimization failed.", file=self.result_file)
 			return False, 0, 0, 0;
+		except cvxpy.error.SolverError as e:
+			print("Optimization failed.", file=self.result_file)
+			return False, 0, 0, 0;
 
 	def semivariance_efficient_return(self, target_annul_return=0.1):
 		print("\n========== Semivariance Efficient Return ==========", file=self.result_file)
 		try:
 			target_annul_return = abs(target_annul_return)
 
-			es = EfficientSemivariance(self.mu, self.historical_returns)
+			es = EfficientSemivariance(self.mean_historical_return, self.historical_returns)
 			es.efficient_return(target_annul_return)
 			clean_weights = es.clean_weights()
 			performance = es.portfolio_performance()
@@ -163,11 +168,14 @@ class Program:
 		except pypfopt.exceptions.OptimizationError as e:
 			print("Optimization failed.", file=self.result_file)
 			return False, 0, 0, 0;
+		except cvxpy.error.SolverError as e:
+			print("Optimization failed.", file=self.result_file)
+			return False, 0, 0, 0;
 
 	def semivariance_efficient_risk(self, target_semideviation=0.1):
 		print("\n========== Semivariance Efficient Risk ==========", file=self.result_file)
 		try:
-			es = EfficientSemivariance(self.mu, self.historical_returns)
+			es = EfficientSemivariance(self.mean_historical_return, self.historical_returns)
 			es.efficient_risk(target_semideviation)
 			clean_weights = es.clean_weights()
 			performance = es.portfolio_performance()
@@ -189,6 +197,9 @@ class Program:
 			print("Funds remaining: ${:.2f}".format(leftover), file=self.result_file)
 			return True, performance[0], performance[1], performance[2];
 		except pypfopt.exceptions.OptimizationError as e:
+			print("Optimization failed.", file=self.result_file)
+			return False, 0, 0, 0;
+		except cvxpy.error.SolverError as e:
 			print("Optimization failed.", file=self.result_file)
 			return False, 0, 0, 0;
 
@@ -218,15 +229,17 @@ if __name__ == '__main__':
 	(min_semivariance_success, min_semivariance_annual_return, min_semivariance_volatility, min_semivariance_sharpe_ratio) = program.min_semivariance()
 
 	# semivariance efficient return
+	total_annual_return = 0
 	target_annual_return = 0
-	if max_sharpe_success and min_volatility_success:
-		total_annual_return = abs(max_sharpe_annual_return) + abs(min_volatility_annual_return)
+	target_min_return = max(min_volatility_annual_return, min_semivariance_annual_return)
+
+	if max_sharpe_success:
+		total_annual_return += abs(target_min_return)
+		total_annual_return += abs(max_sharpe_annual_return)
+		target_annual_return += target_min_return * (abs(target_min_return) / total_annual_return)
 		target_annual_return += max_sharpe_annual_return * (abs(max_sharpe_annual_return) / total_annual_return)
-		target_annual_return += min_volatility_annual_return * (abs(min_volatility_annual_return) / total_annual_return)
-	elif max_sharpe_success:
-		target_annual_return += max_sharpe_annual_return
-	elif min_volatility_success:
-		target_annual_return += min_volatility_annual_return
+	else:
+		target_annual_return +=  target_min_return
 
 	(efficient_return_success, efficient_return_annual_return, efficient_return_volatility, efficient_return_sharpe_ratio) = program.semivariance_efficient_return(target_annual_return)
 
